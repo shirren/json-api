@@ -2,7 +2,7 @@
 Entry-point module for this package.
 -}
 module Network.JSONApi
-( D.Document
+( D.Document (..)
 , D.ResourceData (..)
 , D.ErrorDocument (..)
 , D.Included
@@ -22,11 +22,16 @@ module Network.JSONApi
 , P.PageSize (..)
 , P.ResourceCount (..)
 , P.Strategy (..)
+, S.Source (..)
 , P.mkPaginationLinks
 , R.mkRelationship
 , R.mkRelationships
 , D.mkDocument
+, D.mkDocuments
 , D.mkDocument'
+, D.mkSimpleDocument
+, D.mkSimpleDocuments
+, D.mkSimpleDocument'
 , D.singleton
 , D.list
 , D.mkCompoundDocument
@@ -42,4 +47,5 @@ import qualified Network.JSONApi.Link as L
 import qualified Network.JSONApi.Meta as M
 import qualified Network.JSONApi.Pagination as P
 import qualified Network.JSONApi.Resource as R
+import qualified Network.JSONApi.Source as S
 

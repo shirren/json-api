@@ -16,7 +16,9 @@ import Data.Text
 import qualified GHC.Generics as G
 import Network.JSONApi.Link (Links)
 import Network.JSONApi.Meta
+import Network.JSONApi.Source (Source)
 import Prelude hiding (id)
+import Control.DeepSeq (NFData)
 
 {- |
 Type for providing application-specific detail to unsuccessful API
@@ -31,10 +33,12 @@ data Error a =
         , code   :: Maybe Text
         , title  :: Maybe Text
         , detail :: Maybe Text
+        , source :: Maybe Source
         , meta   :: Maybe Meta
         }
   deriving (Show, Eq, G.Generic)
 
+instance NFData a => NFData (Error a)
 instance ToJSON a   => ToJSON (Error a)
 instance FromJSON a => FromJSON (Error a)
 
@@ -46,5 +50,6 @@ instance Default (Error a) where
     , code   = Nothing
     , title  = Nothing
     , detail = Nothing
+    , source = Nothing
     , meta   = Nothing
     }

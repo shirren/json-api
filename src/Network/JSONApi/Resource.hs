@@ -15,7 +15,6 @@ module Network.JSONApi.Resource
 import Control.Lens.TH
 import Data.Aeson (ToJSON, FromJSON, (.=), (.:), (.:?))
 import qualified Data.Aeson as AE
-import qualified Data.Aeson.Types as AE
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Monoid
@@ -25,6 +24,7 @@ import Network.JSONApi.Identifier (HasIdentifier (..), Identifier (..))
 import Network.JSONApi.Link (Links)
 import Network.JSONApi.Meta (Meta)
 import Prelude hiding (id)
+import Control.DeepSeq (NFData)
 
 {- |
 Type representing a JSON-API resource object.
@@ -39,6 +39,8 @@ data Resource a = Resource
   , getLinks :: Maybe Links
   , getRelationships :: Maybe Relationships
   } deriving (Show, Eq, Generic)
+
+instance NFData a => NFData (Resource a)
 
 instance (ToJSON a) => ToJSON (Resource a) where
   toJSON (Resource (Identifier resId resType metaObj) resObj linksObj rels) =
@@ -66,7 +68,7 @@ instance HasIdentifier (Resource a) where
 {- |
 A typeclass for decorating an entity with JSON API properties
 -}
-class (ToJSON a, FromJSON a) => ResourcefulEntity a where
+class ResourcefulEntity a where
   resourceIdentifier :: a -> Text
   resourceType :: a -> Text
   resourceLinks :: a -> Maybe Links
@@ -97,6 +99,8 @@ data Relationship = Relationship
   , _links :: Maybe Links
   } deriving (Show, Eq, Generic)
 
+instance NFData Relationship
+
 instance ToJSON Relationship where
   toJSON = AE.genericToJSON
     AE.defaultOptions { AE.fieldLabelModifier = drop 1 }
@@ -109,12 +113,15 @@ instance FromJSON Relationship where
 data Relationships = Relationships (Map Text Relationship)
   deriving (Show, Eq, Generic)
 
+instance NFData Relationships
 instance ToJSON Relationships
 instance FromJSON Relationships
 
+instance Semigroup Relationships where
+  (<>) (Relationships a) (Relationships b) = Relationships (a <> b)
+
 instance Monoid Relationships where
   mempty = Relationships Map.empty
-  mappend (Relationships a) (Relationships b) = Relationships (a <> b)
 
 mkRelationships :: Relationship -> Relationships
 mkRelationships rel =
